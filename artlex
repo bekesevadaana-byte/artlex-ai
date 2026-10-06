@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ArtLex AI — Нейросеть-искусствовед</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f0e8;
+    color: #202020;
+}
+
+header {
+    background: #171717;
+    color: white;
+    padding: 25px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.header-text {
+    color: #bbb;
+    font-size: 14px;
+}
+
+.hero {
+    padding: 55px 7%;
+    background: linear-gradient(135deg, #f4f0e8, #e7dcc8);
+}
+
+.hero h1 {
+    font-size: 44px;
+    max-width: 850px;
+    margin: 0 0 15px;
+}
+
+.hero p {
+    max-width: 800px;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+main {
+    max-width: 1250px;
+    margin: auto;
+    padding: 30px 7% 70px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+select,
+textarea,
+button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    font: inherit;
+}
+
+textarea {
+    min-height: 170px;
+    resize: vertical;
+}
+
+textarea[readonly] {
+    background: #f5f5f5;
+}
+
+button {
+    background: #171717;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+.painting-viewer {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f2ede3;
+    border-radius: 18px;
+    text-align: center;
+}
+
+.painting-viewer img {
+    width: 100%;
+    max-width: 650px;
+    max-height: 520px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.painting-caption {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.stat {
+    background: #f2ede3;
+    border-radius: 15px;
+    padding: 18px;
+}
+
+.number {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tag {
+    display: inline-block;
+    padding: 7px 11px;
+    margin: 4px;
+    border-radius: 20px;
+    background: #eee8dc;
+    font-size: 13px;
+}
+
+.compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.bar {
+    height: 14px;
+    background: #eee;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+    background: #222;
+}
+
+.small-note {
+    color: #777;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+footer {
+    background: #171717;
+    color: #bbb;
+    text-align: center;
+    padding: 30px;
+}
+
+@media(max-width:800px) {
+
+    .grid,
+    .compare {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .hero h1 {
+        font-size: 34px;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+ARTLEX AI
+</div>
+
+<div class="header-text">
+Нейросеть-искусствовед · исследовательский прототип
+</div>
+
+</header>
+
+
+<section class="hero">
+
+<h1>
+Как человек и ИИ описывают одну картину?
+</h1>
+
+<p>
+Интерактивная исследовательская система для сравнения
+лексического состава описаний произведений искусства,
+созданных человеком и искусственным интеллектом.
+</p>
+
+</section>
+
+
+<main>
+
+
+<!-- ВЫБОР КАРТИНЫ -->
+
+<section class="card">
+
+<h2>1. Выберите произведение искусства</h2>
+
+<select id="painting" onchange="loadPainting()">
+
+<option value="starry">
+Винсент ван Гог — «Звёздная ночь»
+</option>
+
+<option value="scream">
+Эдвард Мунк — «Крик»
+</option>
+
+<option value="monalisa">
+Леонардо да Винчи — «Мона Лиза»
+</option>
+
+<option value="sunflowers">
+Винсент ван Гог — «Подсолнухи»
+</option>
+
+<option value="waterlilies">
+Клод Моне — «Водяные лилии»
+</option>
+
+<option value="girlpearl">
+Ян Вермеер — «Девушка с жемчужной серёжкой»
+</option>
+
+<option value="persistence">
+Сальвадор Дали — «Постоянство памяти»
+</option>
+
+<option value="guernica">
+Пабло Пикассо — «Герника»
+</option>
+
+<option value="american">
+Грант Вуд — «Американская готика»
+</option>
+
+<option value="birthvenus">
+Сандро Боттичелли — «Рождение Венеры»
+</option>
+
+<option value="nightwatch">
+Рембрандт — «Ночной дозор»
+</option>
+
+<option value="impression">
+Клод Моне — «Впечатление. Восход солнца»
+</option>
+
+<option value="warhol">
+Энди Уорхол — «Диптих Мэрилин»
+</option>
+
+<option value="campbell">
+Энди Уорхол — «Банки супа Кэмпбелл»
+</option>
+
+<option value="rothko">
+Марк Ротко — «№ 14»
+</option>
+
+<option value="pollock">
+Джексон Поллок — «№ 5, 1948»
+</option>
+
+<option value="basquiat">
+Жан-Мишель Баския — «Без названия»
+</option>
+
+</select>
+
+
+<div class="painting-viewer">
+
+<img id="paintingImage" src="" alt="Картина">
+
+<div id="paintingCaption" class="painting-caption">
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ОПИСАНИЯ -->
+
+<section class="grid">
+
+
+<div class="card">
+
+<h2>
+Описание человека
+</h2>
+
+<p class="small-note">
+Готовое описание, подготовленное для исследовательской базы.
+</p>
+
+<textarea id="humanDescription" readonly>
+</textarea>
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+Описание ИИ
+</h2>
+
+<p class="small-note">
+Описание автоматически загружается для выбранной картины.
+</p>
+
+<textarea id="aiDescription" readonly>
+</textarea>
+
+</div>
+
+</section>
+
+
+
+<!-- СОБСТВЕННОЕ МНЕНИЕ -->
+
+<section class="card">
+
+<h2>
+Моё собственное описание
+</h2>
+
+<p class="small-note">
+Это поле можно оставить пустым. Если вы напишете собственное
+описание картины, система сравнит именно его с описанием ИИ.
+</p>
+
+<textarea
+id="customDescription"
+placeholder="Напишите здесь своё описание картины..."
+></textarea>
+
+</section>
+
+
+
+<!-- АНАЛИЗ -->
+
+<section class="card">
+
+<button onclick="analyze()">
+Провести лексический анализ
+</button>
+
+
+<div id="result" style="display:none;">
+
+<h2>
+Результаты исследования
+</h2>
+
+
+<div class="stats">
+
+<div class="stat">
+
+<div class="number" id="humanWords">
+0
+</div>
+
+слов человека
+
+</div>
+
+
+<div class="stat">
+
+<div class="number" id="aiWords">
+0
+</div>
+
+слов ИИ
+
+</div>
+
+
+<div class="stat">
+
+<div class="number" id="humanEmotion">
+0%
+</div>
+
+эмоциональной лексики человека
+
+</div>
+
+
+<div class="stat">
+
+<div class="number" id="aiFacts">
+0%
+</div>
+
+фактической лексики ИИ
+
+</div>
+
+</div>
+
+
+
+<h3>
+Характерная лексика человека
+</h3>
+
+<div id="humanTags">
+</div>
+
+
+
+<h3>
+Характерная лексика ИИ
+</h3>
+
+<div id="aiTags">
+</div>
+
+
+
+<div class="compare">
+
+<div>
+
+<h3>
+Фокус человека
+</h3>
+
+<p>
+Эмоции → интерпретация → переживания →
+образность → подтекст
+</p>
+
+<div class="bar">
+
+<div
+class="fill"
+style="width:82%">
+</div>
+
+</div>
+
+</div>
+
+
+
+<div>
+
+<h3>
+Фокус ИИ
+</h3>
+
+<p>
+Объекты → цвет → расположение →
+визуальные признаки → факты
+</p>
+
+<div class="bar">
+
+<div
+class="fill"
+style="width:88%">
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<h3>
+Исследовательский вывод
+</h3>
+
+<p id="conclusion">
+</p>
+
+</div>
+
+</section>
+
+
+
+<section class="card">
+
+<h2>
+Что исследует ArtLex AI?
+</h2>
+
+<p>
+Система позволяет проверить гипотезу о том, что человек
+и искусственный интеллект используют разные лексические
+стратегии при описании одного произведения искусства.
+</p>
+
+<p>
+Предполагается, что человек чаще использует эмоциональную,
+оценочную и интерпретационную лексику, тогда как ИИ может
+чаще фиксировать визуальные признаки, объекты, цвета и
+пространственные отношения.
+</p>
+
+<p class="small-note">
+Важно: один пример не доказывает эту закономерность.
+Научный вывод должен строиться на анализе нескольких
+произведений и сопоставлении результатов.
+</p>
+
+</section>
+
+
+</main>
+
+
+<footer>
+
+ArtLex AI · «Человек и ИИ как субъекты описания искусства»
+
+</footer>
+
+
+
+<script>
+
+
+/* =========================================================
+   КАРТИНЫ
+========================================================= */
+
+const paintings = {
+
+
+starry: {
+
+title: "Винсент ван Гог — «Звёздная ночь»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/The%20Starry%20Night.JPG",
+
+human:
+"Звёздная ночь производит тревожное и немного загадочное впечатление. Небо словно движется, а яркие звёзды выглядят особенно выразительно. Мне кажется, художник передал не просто ночной пейзаж, а своё внутреннее состояние и чувство беспокойства.",
+
+ai:
+"На изображении представлен ночной пейзаж с большим количеством ярких звёзд на синем небе. В нижней части расположены здания и деревья. В левой части заметно высокое тёмное дерево. Основные цвета — синий, жёлтый, зелёный и чёрный."
+
+},
+
+
+
+scream: {
+
+title: "Эдвард Мунк — «Крик»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/The_Scream.jpg",
+
+human:
+"Картина вызывает сильное чувство тревоги и страха. Центральная фигура словно кричит вместе с окружающим миром, а необычные линии делают пейзаж напряжённым. Красные и оранжевые оттенки усиливают ощущение опасности и эмоционального напряжения.",
+
+ai:
+"На картине изображена человеческая фигура на мосту на фоне пейзажа. Центральная фигура имеет выражение тревоги. На заднем плане видны вода, небо и две дополнительные фигуры. Использованы красные, оранжевые, жёлтые и тёмные оттенки."
+
+},
+
+
+
+monalisa: {
+
+title: "Леонардо да Винчи — «Мона Лиза»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+
+human:
+"Женщина на картине выглядит спокойной, но её выражение лица трудно однозначно понять. Загадочная улыбка создаёт ощущение тайны. Пейзаж на заднем плане кажется немного нереальным и усиливает впечатление загадочности портрета.",
+
+ai:
+"На картине изображена женщина, представленная по пояс. Она находится в центре композиции и сидит на фоне пейзажа. На заднем плане видны горы, дороги и водоём. Основные цвета — коричневый, зелёный, синий и тёмные оттенки."
+
+},
+
+
+
+sunflowers: {
+
+title: "Винсент ван Гог — «Подсолнухи»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Vincent%20van%20Gogh%20-%20Sunflowers%20-%20National%20Gallery%20version.jpg",
+
+human:
+"Яркие подсолнухи создают тёплое и солнечное настроение. Несмотря на простоту сюжета, цветы выглядят живыми и выразительными. Жёлтые оттенки передают ощущение энергии, света и радости.",
+
+ai:
+"На изображении представлена композиция из подсолнухов, помещённых в вазу. Цветы имеют жёлтые и оранжевые оттенки, листья и стебли — зелёные. Фон выполнен в жёлто-зелёной гамме. Основным объектом композиции являются цветы."
+
+},
+
+
+
+waterlilies: {
+
+title: "Клод Моне — «Водяные лилии»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
+
+human:
+"Картина создаёт спокойное и почти мечтательное настроение. Вода отражает окружающий свет, а цветы кажутся частью единого пространства. Изображение больше передаёт ощущение природы, чем точно показывает её детали.",
+
+ai:
+"На картине изображена поверхность воды с водяными лилиями. Видны зелёные листья, светлые цветы и отражения. Композиция не имеет чётко выраженной линии горизонта. Основные цвета — зелёный, синий, розовый и фиолетовый."
+
+},
+
+
+
+girlpearl: {
+
+title: "Ян Вермеер — «Девушка с жемчужной серёжкой»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Meisje_met_de_parel.jpg",
+
+human:
+"Девушка смотрит на зрителя так, будто её неожиданно окликнули. Её взгляд кажется спокойным, но одновременно загадочным. Жемчужная серьга и свет на лице привлекают внимание и делают образ особенно выразительным.",
+
+ai:
+"На изображении представлена девушка, повернувшая голову к зрителю. Она изображена на тёмном фоне и освещена спереди. На голове находится головной убор, а на ухе заметна крупная жемчужная серьга. Использованы синие, жёлтые, коричневые и светлые оттенки."
+
+},
+
+
+
+persistence: {
+
+title: "Сальвадор Дали — «Постоянство памяти»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/The_Persistence_of_Memory.jpg",
+
+human:
+"Мягкие часы создают странное и немного тревожное ощущение. Обычный предмет здесь теряет привычную форму, поэтому время кажется чем-то нестабильным. Пейзаж выглядит тихим, но эта тишина кажется необычной и даже немного пугающей.",
+
+ai:
+"На картине изображён пейзаж с несколькими часами, расположенными на различных поверхностях. Часы имеют деформированную мягкую форму. На заднем плане видны горы и вода. В композиции присутствуют коричневые, жёлтые, синие и серые оттенки."
+
+},
+
+
+
+guernica: {
+
+title: "Пабло Пикассо — «Герника»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Guernica%20by%20Pablo%20Picasso.jpg",
+
+human:
+"Картина производит тяжёлое и тревожное впечатление. Искажённые фигуры людей и животных словно передают боль и хаос. Чёрно-белая гамма усиливает драматичность и ощущение трагедии.",
+
+ai:
+"На картине представлена крупная композиция с человеческими и животными фигурами. Изображение выполнено преимущественно в чёрном, белом и сером цветах. В композиции заметны человек, лошадь, бык, лампа и здания."
+
+},
+
+
+
+american: {
+
+title: "Грант Вуд — «Американская готика»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Grant_Wood_-_American_Gothic_-_Google_Art_Project.jpg",
+
+human:
+"Два человека перед домом выглядят серьёзными и сосредоточенными. Их позы создают ощущение строгости и некоторой напряжённости. Простая сцена воспринимается как образ повседневной жизни и американской провинции.",
+
+ai:
+"На картине изображены мужчина и женщина, стоящие перед домом. Мужчина держит сельскохозяйственный инструмент. На заднем плане находится деревянный дом с окном. Основные цвета — зелёный, белый, чёрный, коричневый и серый."
+
+},
+
+
+
+birthvenus: {
+
+title: "Сандро Боттичелли — «Рождение Венеры»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+
+human:
+"Образ Венеры кажется лёгким и гармоничным. Женская фигура в центре композиции создаёт ощущение красоты и спокойствия. Морской пейзаж и светлые цвета делают сцену почти сказочной.",
+
+ai:
+"На картине изображена женская фигура, стоящая на большой раковине. По сторонам находятся другие фигуры и элементы природы. На заднем плане видны море, берег и деревья. Композиция выполнена в светлых, зелёных, синих и золотистых оттенках."
+
+},
+
+
+
+nightwatch: {
+
+title: "Рембрандт — «Ночной дозор»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/The%20Nightwatch%20or%20The%20Militia%20Company%20of%20Captain%20Frans%20Banning%20Cocq%20and%20Lieutenant%20Wilhelm%20van%20Ruytenburgh.jpg",
+
+human:
+"Картина кажется динамичной и наполненной движением. Люди словно собираются в важный момент, а контраст света и тени делает сцену драматичной. Особенно интересно наблюдать, как внимание зрителя переходит от одной фигуры к другой.",
+
+ai:
+"На картине представлена группа людей в тёмной одежде, расположенная на переднем плане. Среди фигур видны вооружённые люди и знамя. Композиция построена с использованием контрастного освещения. Основные цвета — тёмные коричневые, чёрные, золотистые и красные оттенки."
+
+},
+
+
+
+impression: {
+
+title: "Клод Моне — «Впечатление. Восход солнца»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Claude_Monet%2C_Impression%2C_soleil_levant.jpg",
+
+human:
+"Картина передаёт первое впечатление от утреннего пейзажа. Солнце отражается в воде, а очертания лодок и города выглядят размытыми. Благодаря цвету и свету изображение кажется живым и немного воздушным.",
+
+ai:
+"На изображении представлен морской пейзаж с восходящим солнцем. На переднем плане видна вода и небольшие лодки. Солнце имеет яркий оранжевый цвет и отражается на поверхности воды. Фон состоит из голубых, серых и оранжевых оттенков."
+
+},
+
+
+
+warhol: {
+
+title: "Энди Уорхол — «Диптих Мэрилин»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Marilyn%20Diptych%20by%20Andy%20Warhol.jpg",
+
+human:
+"Повторяющееся изображение лица создаёт ощущение массовой культуры и превращения человека в узнаваемый образ. Яркие цвета делают портрет привлекательным, но одновременно немного искусственным. Повторение словно заставляет задуматься о том, как знаменитость становится товаром.",
+
+ai:
+"На изображении повторяется портрет женщины. Лицо занимает центральную часть каждого фрагмента. Использованы яркие розовые, жёлтые, голубые и оранжевые оттенки. В правой части изображения цвет постепенно становится менее насыщенным."
+
+},
+
+
+
+campbell: {
+
+title: "Энди Уорхол — «Банки супа Кэмпбелл»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Campbell%27s%20Soup%20Cans%20MOMA.jpg",
+
+human:
+"Обычный предмет повседневной жизни превращён в произведение искусства. Повторение банок создаёт ощущение однообразия и массового производства. Картина заставляет задуматься о границе между обычным товаром и искусством.",
+
+ai:
+"На изображении представлены многочисленные банки супа Campbell's, расположенные последовательно. Банки имеют одинаковую форму и повторяющийся дизайн этикетки. Основными цветами являются красный, белый и зелёный."
+
+},
+
+
+
+rothko: {
+
+title: "Марк Ротко — «№ 14»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Mark%20Rothko%20No.%2014.jpg",
+
+human:
+"Несмотря на отсутствие узнаваемых предметов, картина создаёт ощущение глубины и эмоционального напряжения. Большие цветовые поля словно заставляют зрителя сосредоточиться на собственных ощущениях. Простота формы не делает произведение пустым.",
+
+ai:
+"Картина состоит из крупных прямоугольных цветовых полей, расположенных друг над другом. Границы между цветами мягкие и размытые. Композиция не содержит узнаваемых предметов или человеческих фигур."
+
+},
+
+
+
+pollock: {
+
+title: "Джексон Поллок — «№ 5, 1948»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Number%205%2C%201948%20by%20Jackson%20Pollock.jpg",
+
+human:
+"Переплетение линий создаёт ощущение движения и хаоса. Кажется, будто краска двигалась по поверхности вместе с художником. В картине трудно найти один центр внимания, поэтому взгляд постоянно перемещается.",
+
+ai:
+"На изображении представлен абстрактный рисунок из множества пересекающихся линий и пятен. Основными цветами являются чёрный, белый, жёлтый, красный и коричневый. Элементы распределены по всей поверхности картины."
+
+},
+
+
+
+basquiat: {
+
+title: "Жан-Мишель Баския — «Без названия»",
+
+image:
+"https://commons.wikimedia.org/wiki/Special:FilePath/Jean-Michel%20Basquiat%20-%20Untitled%20%281982%29.jpg",
+
+human:
+"Работа выглядит напряжённой и хаотичной. Знаки, слова и фигуры словно передают поток мыслей. Яркие цвета привлекают внимание, а грубые линии создают ощущение непосредственности и внутреннего протеста.",
+
+ai:
+"На картине представлены многочисленные графические знаки, линии, символы и схематичные фигуры. Использованы белый, чёрный, красный, жёлтый и синий цвета. Композиция сочетает текстовые элементы, человеческие формы и абстрактные изображения."
+
+}
+
+};
+
+
+
+/* =========================================================
+   ЛЕКСИЧЕСКИЙ АНАЛИЗ
+========================================================= */
+
+const emotions = [
+"тревож",
+"красив",
+"эмоци",
+"чувств",
+"беспокой",
+"радост",
+"печал",
+"страш",
+"вдохнов",
+"настроен",
+"ощущен",
+"пережив",
+"любов",
+"груст",
+"загадоч",
+"тайн",
+"боль",
+"хаос",
+"драмат",
+"спокой"
+];
+
+
+const facts = [
+"синий",
+"син",
+"жёлт",
+"желт",
+"зелён",
+"зелен",
+"чёрн",
+"черн",
+"дерев",
+"здан",
+"звёзд",
+"звезд",
+"неб",
+"цвет",
+"част",
+"изображ",
+"располож",
+"объект",
+"форма",
+"фигур",
+"композиц",
+"красн",
+"бел",
+"вода",
+"женщ",
+"мужч",
+"портрет"
+];
+
+
+function words(text) {
+
+return text
+.trim()
+.split(/\s+/)
+.filter(Boolean);
+
+}
+
+
+
+function countType(arr, list) {
+
+return arr.filter(word =>
+
+list.some(key =>
+word.toLowerCase().includes(key)
+)
+
+).length;
+
+}
+
+
+
+function tags(arr, list) {
+
+let found = [];
+
+arr.forEach(word => {
+
+let clean =
+word
+.toLowerCase()
+.replace(/[.,!?;:"()]/g, "");
+
+if (
+list.some(key => clean.includes(key))
+&&
+!found.includes(clean)
+) {
+
+found.push(clean);
+
+}
+
+});
+
+if (found.length === 0) {
+
+return "<span class='tag'>характерных слов не обнаружено</span>";
+
+}
+
+return found
+.slice(0, 15)
+.map(word => `<span class="tag">${word}</span>`)
+.join("");
+
+}
+
+
+
+/* =========================================================
+   ЗАГРУЗКА КАРТИНЫ
+========================================================= */
+
+function loadPainting() {
+
+const key =
+document.getElementById("painting").value;
+
+const painting =
+paintings[key];
+
+document.getElementById("paintingImage").src =
+painting.image;
+
+document.getElementById("paintingCaption").textContent =
+painting.title;
+
+document.getElementById("humanDescription").value =
+painting.human;
+
+document.getElementById("aiDescription").value =
+painting.ai;
+
+document.getElementById("customDescription").value =
+"";
+
+document.getElementById("result").style.display =
+"none";
+
+}
+
+
+
+/* =========================================================
+   АНАЛИЗ
+========================================================= */
+
+function analyze() {
+
+const custom =
+document
+.getElementById("customDescription")
+.value
+.trim();
+
+
+const humanText =
+custom ||
+document
+.getElementById("humanDescription")
+.value;
+
+
+const aiText =
+document
+.getElementById("aiDescription")
+.value;
+
+
+const humanWords =
+words(humanText);
+
+const aiWords =
+words(aiText);
+
+
+const emotionCount =
+countType(
+humanWords,
+emotions
+);
+
+
+const factCount =
+countType(
+aiWords,
+facts
+);
+
+
+document.getElementById("humanWords").textContent =
+humanWords.length;
+
+
+document.getElementById("aiWords").textContent =
+aiWords.length;
+
+
+document.getElementById("humanEmotion").textContent =
+Math.round(
+emotionCount /
+Math.max(humanWords.length, 1)
+* 100
+)
++ "%";
+
+
+document.getElementById("aiFacts").textContent =
+Math.round(
+factCount /
+Math.max(aiWords.length, 1)
+* 100
+)
++ "%";
+
+
+document.getElementById("humanTags").innerHTML =
+tags(
+humanWords,
+emotions
+);
+
+
+document.getElementById("aiTags").innerHTML =
+tags(
+aiWords,
+facts
+);
+
+
+const conclusion =
+document.getElementById("conclusion");
+
+
+if (custom) {
+
+conclusion.textContent =
+"Сравнение выполнено между вашим собственным описанием и текстом ИИ. Результат показывает особенности именно этих двух текстов. Для научного вывода необходимо повторить эксперимент на нескольких картинах.";
+
+}
+
+else {
+
+conclusion.textContent =
+"Сравнение выполнено между эталонным человеческим описанием и описанием ИИ. В данном примере человеческий текст ориентирован на эмоциональную интерпретацию, а описание ИИ — на наблюдаемые визуальные признаки. Это гипотеза исследования, поэтому окончательный вывод следует делать по всему корпусу картин.";
+
+}
+
+
+document.getElementById("result").style.display =
+"block";
+
+}
+
+
+
+/* =========================================================
+   ЗАПУСК
+========================================================= */
+
+loadPainting();
+
+</script>
+
+</body>
+</html>
